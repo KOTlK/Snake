@@ -12,8 +12,9 @@
   "ExpandedNodes": [
     "",
     "\\src",
+    "\\src\\Entities",
     "\\src\\Field"
   ],
-  "SelectedNode": "\\src\\main.cpp",
+  "SelectedNode": "\\src\\Entities\\Snake.cpp",
   "PreviewInSolutionExplorer": false
 }

@@ -13,6 +13,8 @@ project (SnakeGame)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
+file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
+
 include(FetchContent)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
@@ -24,7 +26,13 @@ add_executable (SnakeGame "src/main.cpp" "src/main.h")
 
 set(SRC 
 "src/Field/Field.h"
-"src/Field/Field.cpp")
+"src/Field/Field.cpp"
+"src/Entities/Entity.h"
+"src/Entities/Entity.cpp"
+"src/Entities/Apple.h"
+"src/Entities/Apple.cpp"
+"src/Entities/Snake.h"
+"src/Entities/Snake.cpp" "src/Game.h" "src/Game.cpp")
 
 target_sources(SnakeGame PRIVATE ${SRC})
 target_link_libraries(SnakeGame PRIVATE sfml-graphics)
@@ -40,5 +48,3 @@ if(WIN32)
 endif()
 
 install(TARGETS SnakeGame)
-
-file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
