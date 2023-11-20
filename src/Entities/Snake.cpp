@@ -26,7 +26,7 @@ SnakePart::SnakePart(const Vector2i& position, const Vector2i& previousPosition,
 	x(position.x),
 	y(position.y)
 {
-	setRotation(std::atan2f(direction.y, direction.x) * 57.2958F);
+	setRotation(atan2f(direction.y, direction.x) * 57.2958F);
 	createVertices();
 }
 
@@ -56,8 +56,8 @@ void SnakePart::recalculateRotation()
 
 	if(next != nullptr && previous != nullptr)
 	{
-		const auto absDirectionToPrevious = Vector2i(std::abs(previous->x - x), std::abs(previous->y - y));
-		const auto absDirectionToHead = Vector2i(std::abs(x - next->x), std::abs(y - next->y));
+		const auto absDirectionToPrevious = Vector2i(abs(previous->x - x), abs(previous->y - y));
+		const auto absDirectionToHead = Vector2i(abs(x - next->x), abs(y - next->y));
 		const auto directionSum = absDirectionToPrevious + absDirectionToHead;
 
 		if (directionSum == Vector2i(1, 1))
@@ -276,8 +276,8 @@ void Snake::draw(RenderTarget& target, RenderStates states) const
 			statesCopy.texture = _tailTexture;
 		}else
 		{
-			auto directionToPrevious = Vector2i(std::abs(head->previous->x - head->x), std::abs(head->previous->y - head->y));
-			auto directionToHead = Vector2i(std::abs(head->x - head->next->x), std::abs(head->y - head->next->y));
+			auto directionToPrevious = Vector2i(abs(head->previous->x - head->x), abs(head->previous->y - head->y));
+			auto directionToHead = Vector2i(abs(head->x - head->next->x), abs(head->y - head->next->y));
 			auto directionSum = directionToPrevious + directionToHead;
 
 			if (directionSum == Vector2i(1, 1))
