@@ -1,4 +1,5 @@
 #include "Snake.h"
+#include <cmath>
 
 using namespace sf;
 
@@ -25,7 +26,7 @@ SnakePart::SnakePart(const Vector2i& position, const Vector2i& previousPosition,
 	x(position.x),
 	y(position.y)
 {
-	setRotation(std::atan2(direction.y, direction.x) * 57.2958F);
+	setRotation(std::atan2f(direction.y, direction.x) * 57.2958F);
 	createVertices();
 }
 
