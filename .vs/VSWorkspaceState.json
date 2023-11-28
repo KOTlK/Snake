@@ -13,8 +13,10 @@
     "",
     "\\src",
     "\\src\\Entities",
-    "\\src\\Field"
+    "\\src\\Factories",
+    "\\src\\Field",
+    "\\src\\States"
   ],
-  "SelectedNode": "\\src\\Entities\\Snake.cpp",
+  "SelectedNode": "\\.gitignore",
   "PreviewInSolutionExplorer": false
 }

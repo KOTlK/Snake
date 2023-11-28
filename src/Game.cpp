@@ -1,16 +1,6 @@
 #include "Game.h"
-#include <random>
 
 using namespace sf;
-
-int randomInt(const int& start, const int& end)
-{
-    std::random_device device;
-    std::mt19937 generator(device());
-    auto distribution = std::uniform_int_distribution<std::mt19937::result_type>(start, end);
-
-    return distribution(generator);
-}
 
 void Game::createEnvironment()
 {
@@ -26,34 +16,50 @@ void Game::loadResources()
     _snakeTailTexture->loadFromFile("resources/snaketail.png");
     _appleTexture->loadFromFile("resources/apple.png");
     _tileTexture->loadFromFile("resources/tile.png");
+    _replayButtonTexture->loadFromFile("resources/replay.png");
+    _replayButtonTexture->setSmooth(true);
 }
 
 void Game::createField(const int& width, const int& height)
 {
-    _field = new Field(
-        width,
-        height,
-        CellConfig{
-            TEXTURE_RESOLUTION,
-            TEXTURE_RESOLUTION,
-            _tileTexture,
-            Color::White,
-            TEXTURE_RESOLUTION,
-            TEXTURE_RESOLUTION },
-        { 0, 0 });
-
+    _fieldSize = Vector2i(width, height);
     View view(Vector2f(width * TEXTURE_RESOLUTION / 2 - 16, height * TEXTURE_RESOLUTION / 2 - 16), Vector2f(width * TEXTURE_RESOLUTION, height * TEXTURE_RESOLUTION));
     _window->setView(view);
 
-    const Vector2i snakePosition(randomInt(0, width - 1), randomInt(0, height - 1));
+    _stateMachine = new StateMachine(
+        new PlayingState(
+            _field = new Field(
+                width,
+                height,
+                CellConfig{
+                    TEXTURE_RESOLUTION,
+                    TEXTURE_RESOLUTION,
+                    _tileTexture,
+                    Color::White,
+                    TEXTURE_RESOLUTION,
+                    TEXTURE_RESOLUTION
+                },
+                { 0, 0 }
+            ),
+            _snake = new Snake(
+                Vector2i(0, 0),
+                _snakeHeadTexture,
+                _snakeBodyTexture,
+                _snakeTailTexture,
+                _snakeBodyAngleTexture),
+            new AppleFactory(
+                _appleTexture,
+                Vector2f(32, 32)
+            ),
+            3
+        ),
+        new GameOverState(
+            _replayButtonTexture,
+            _window),
+        _window
+    );
 
-    _snake = new Snake(snakePosition, _snakeHeadTexture, _snakeBodyTexture, _snakeTailTexture, _snakeBodyAngleTexture);
-
-    _field->put(snakePosition.x, snakePosition.y, _snake);
-
-    const Vector2f applePosition(randomInt(0, width - 1), randomInt(0, height - 1));
-    auto apple = new Apple(_appleTexture, applePosition, { 32, 32 });
-    _field->put(applePosition.x, applePosition.y, apple);
+    _field->put(0, 0, _snake);
 }
 
 void Game::deleteField()
@@ -73,36 +79,32 @@ void Game::execute()
                 _window->close();
             }
 
-            if (event.type == Event::KeyPressed)
+            if(event.type == Event::KeyReleased)
             {
-                switch (event.key.scancode)
-                {
-                case Keyboard::Scancode::D:
-                    _snake->move(1, 0, *_field);
-                    break;
-                case Keyboard::Scancode::A:
-                    _snake->move(-1, 0, *_field);
-                    break;
-                case Keyboard::Scancode::W:
-                    _snake->move(0, -1, *_field);
-                    break;
-                case Keyboard::Scancode::S:
-                    _snake->move(0, 1, *_field);
-                    break;
-                case Keyboard::Scancode::LControl:
-                    _snake->feed();
-                    break;
-                default:
-                    break;
-                }
+	            if(event.key.scancode == Keyboard::Scancode::Space)
+	            {
+                    _field->debugContent();
+	            }
             }
-
         }
 
+
         _window->clear();
-        _window->draw(*_field);
+        _stateMachine->execute();
+
+        if(_stateMachine->gameRestarted())
+        {
+            restart();
+        }
         _window->display();
     }
+}
+
+void Game::restart()
+{
+    delete _field;
+    delete _snake;
+    createField(_fieldSize.x, _fieldSize.y);
 }
 
 void Game::exit()

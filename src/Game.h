@@ -2,6 +2,7 @@
 
 #include "SFML/Graphics.hpp"
 #include "Field/Field.h"
+#include "States/StateMachine.h"
 
 constexpr int TEXTURE_RESOLUTION = 32;
 
@@ -17,13 +18,15 @@ private:
 	sf::Texture* _snakeTailTexture = new sf::Texture();
 	sf::Texture* _appleTexture = new sf::Texture();
 	sf::Texture* _tileTexture = new sf::Texture();
+	sf::Texture* _replayButtonTexture = new sf::Texture();
+	StateMachine* _stateMachine;
+	sf::Vector2i _fieldSize;
 public:
 	void createEnvironment();
 	void loadResources();
 	void createField(const int& width, const int& height);
 	void deleteField();
 	void execute();
+	void restart();
 	void exit();
 };
-
-int randomInt(const int& start, const int& end);

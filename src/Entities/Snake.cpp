@@ -173,8 +173,10 @@ Snake::Snake(const Vector2i& position, Texture* headTexture, Texture* bodyTextur
 	_bodyTexture(bodyTexture),
 	_tailTexture(tailTexture),
 	_bodyAngleTexture(bodyAngleTexture),
-	_head(new SnakePart(position.x, position.y))
+	_head(new SnakePart(position.x, position.y)),
+	_dead(false)
 {
+	setPosition(position.x * 32, position.y * 32);
 }
 
 Snake::~Snake()
@@ -196,25 +198,34 @@ void Snake::move(const int& x, const int& y, Field& field)
 {
 	const Vector2i targetPosition = Vector2i(_head->x, _head->y) + Vector2i(x, y);
 
+	const auto direction = Vector2i(x, y);
+
+	if(direction == -_head->direction)
+	{
+		move(_head->direction.x, _head->direction.y, field);
+		return;
+	}
+
 	if(field.occupied(targetPosition.x ,targetPosition.y))
 	{
-		const auto content = field.content(targetPosition.x, targetPosition.y);
-
-		switch (content)
+		switch (field.content(targetPosition.x, targetPosition.y))
 		{
 		case CellContent::Apple:
 			feed();
+			field.getApple(targetPosition.x, targetPosition.y)->eat();
 			field.clear(targetPosition.x, targetPosition.y);
 			break;
 		case CellContent::Wall:
+			_dead = true;
 			return;
 		case CellContent::Snake:
+			_dead = true;
 			return;
+		case CellContent::Empty:
+			break;
 		default:
 			break;
 		}
-		
-		//TODO: eat apple or die
 	}
 
 	auto head = _head;
@@ -253,6 +264,18 @@ void Snake::feed()
 	head->next = new SnakePart(Vector2i(position.x, position.y), Vector2i(head->x, head->y), nullptr, head);
 
 	_head->recalculateRotation();
+}
+
+bool Snake::dead()
+{
+	return _dead;
+}
+
+void Snake::putAt(const int& x, const int& y)
+{
+	_head->x = x;
+	_head->y = y;
+	setPosition(x * 32, y * 32);
 }
 
 void Snake::draw(RenderTarget& target, RenderStates states) const

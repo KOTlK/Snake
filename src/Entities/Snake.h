@@ -33,10 +33,13 @@ private:
 	sf::Texture* _tailTexture;
 	sf::Texture* _bodyAngleTexture;
 	SnakePart* _head;
+	bool _dead;
 public:
 	Snake(const sf::Vector2i& position, sf::Texture* headTexture, sf::Texture* bodyTexture, sf::Texture* tailTexture, sf::Texture* bodyAngleTexture);
 	~Snake() override;
 	void move(const int& x, const int& y, Field& field);
 	void feed();
+	bool dead();
+	void putAt(const int& x, const int& y);
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

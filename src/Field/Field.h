@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include <unordered_map>
 #include "../Entities/Apple.h"
 #include "SFML/Graphics.hpp"
@@ -39,10 +40,10 @@ namespace std
 
 enum class CellContent
 {
-	Snake,
-	Apple,
-	Empty,
-	Wall
+	Snake = 1,
+	Apple = 2,
+	Empty = 0,
+	Wall = 3
 };
 
 class Field : public sf::Transformable, public sf::Drawable
@@ -55,14 +56,22 @@ private:
 	sf::VertexBuffer _vertexBuffer;
 	std::unordered_map<std::pair<int, int>, Snake*, std::hash_pair> _snakes;
 	std::unordered_map<std::pair<int, int>, Apple*, std::hash_pair> _apples;
+	std::set<std::pair<int, int>> _freeCells;
 public:
 	Field(const size_t& width, const size_t& height, const CellConfig& cellConfig, const sf::Vector2f& position);
 	~Field() override;
 	bool occupied(const int& x, const int& y) const;
-	int applesCount() const;
 	void put(const int& x, const int& y, Snake* snake);
 	void put(const int& x, const int& y, Apple* apple);
+
+	/**
+	 * \brief put an apple at random position
+	 */
+	void put(Apple* apple);
+	void put(Snake* snake);
+	Apple* getApple(const int& x, const int& y);
 	void clear(const int& x, const int& y);
 	CellContent content(const int& x, const int& y) const;
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+	void debugContent();
 };

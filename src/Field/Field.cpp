@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "../Random.h"
+
 using namespace sf;
 
 
@@ -9,7 +11,9 @@ Field::Field(const size_t& width, const size_t& height, const CellConfig& cellCo
 	_width(width),
 	_height(height),
 	_cellConfig(cellConfig),
-	_vertexBuffer(Triangles, VertexBuffer::Static)
+	_vertexBuffer(Triangles, VertexBuffer::Static),
+	_snakes(),
+	_apples()
 {
 	_vertexBuffer.create(width * height * 6);
 	_vertices = new Vertex[width * height * 6];
@@ -40,6 +44,14 @@ Field::Field(const size_t& width, const size_t& height, const CellConfig& cellCo
 	}
 
 	_vertexBuffer.update(_vertices);
+
+	for(size_t y = 0; y < height; ++y)
+	{
+		for(size_t x = 0; x < width; ++x)
+		{
+			_freeCells.insert(std::pair(x, y));
+		}
+	}
 }
 
 Field::~Field()
@@ -58,23 +70,89 @@ bool Field::occupied(const int& x, const int& y) const
 	}
 
 	const std::pair position(x, y);
-	return _snakes.count(position) > 0 || _apples.count(position) > 0;
-}
 
-int Field::applesCount() const
-{
-	return _apples.size();
+	return _freeCells.count(position) == 0;
 }
 
 void Field::put(const int& x, const int& y, Snake* snake)
 {
-	_snakes[std::make_pair(x, y)] = snake;
+	const auto pos = std::make_pair(x, y);
+
+	_snakes[pos] = snake;
+	_freeCells.erase(pos);
 }
 
 void Field::put(const int& x, const int& y, Apple* apple)
 {
-	_apples[std::make_pair(x, y)] = apple;
+	const auto pos = std::make_pair(x, y);
+	_apples[pos] = apple;
+	_freeCells.erase(pos);
 	apple->setPosition(Vector2f(x * _cellConfig.width, y * _cellConfig.height));
+}
+
+void Field::put(Apple* apple)
+{
+	const auto size = _freeCells.size();
+
+	if (size == 0)
+	{
+		apple->eat();
+		return;
+	}
+
+
+	const auto randomIndex = randomInt(0, size - 1);
+	int index = 0;
+
+	for (auto pos : _freeCells)
+	{
+		if(index == randomIndex)
+		{
+			_apples[pos] = apple;
+			apple->setPosition(Vector2f(pos.first * _cellConfig.width, pos.second * _cellConfig.height));
+			_freeCells.erase(pos);
+			break;
+		}
+
+		index++;
+	}
+}
+
+void Field::put(Snake* snake)
+{
+	const auto size = _freeCells.size();
+
+	if (size == 0)
+	{
+		return;
+	}
+
+
+	const auto randomIndex = randomInt(0, size - 1);
+	int index = 0;
+
+	for (auto pos : _freeCells)
+	{
+		if (index == randomIndex)
+		{
+			_snakes[pos] = snake;
+			snake->putAt(pos.first, pos.second);
+			_freeCells.erase(pos);
+			break;
+		}
+
+		index++;
+	}
+}
+
+Apple* Field::getApple(const int& x, const int& y)
+{
+	if(_apples.count(std::pair(x, y)) > 0)
+	{
+		return _apples[std::pair(x, y)];
+	}
+
+	return nullptr;
 }
 
 void Field::clear(const int& x, const int& y)
@@ -84,12 +162,13 @@ void Field::clear(const int& x, const int& y)
 	if(_snakes.count(position) > 0)
 	{
 		_snakes.erase(position);
+		_freeCells.insert(position);
 	}
 
 	if(_apples.count(position) > 0)
 	{
-		delete _apples[position];
 		_apples.erase(position);
+		_freeCells.insert(position);
 	}
 }
 
@@ -129,5 +208,23 @@ void Field::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	for(const auto [position, snake] : _snakes)
 	{
 		target.draw(*snake);
+	}
+}
+
+void Field::debugContent()
+{
+	for (size_t y = 0; y < _height; ++y)
+	{
+		for (size_t x = 0; x < _width; ++x)
+		{
+			std::cout << static_cast<int>(content(x, y)) << ", ";
+		}
+
+		std::cout << std::endl;
+	}
+
+	for(const auto position : _freeCells)
+	{
+		std::cout << position.first << ", " << position.second << std::endl;
 	}
 }

@@ -32,7 +32,18 @@ set(SRC
 "src/Entities/Apple.h"
 "src/Entities/Apple.cpp"
 "src/Entities/Snake.h"
-"src/Entities/Snake.cpp" "src/Game.h" "src/Game.cpp")
+"src/Entities/Snake.cpp"
+"src/Game.h"
+"src/Game.cpp"
+"src/States/State.h"
+"src/States/States.h"
+"src/States/States.cpp"
+"src/States/StateMachine.h"
+"src/States/StateMachine.cpp"
+ "src/Factories/AppleFactory.h"
+ "src/Factories/AppleFactory.cpp"
+ "src/Random.h"
+ "src/Random.cpp")
 
 target_sources(SnakeGame PRIVATE ${SRC})
 target_link_libraries(SnakeGame PRIVATE sfml-graphics)

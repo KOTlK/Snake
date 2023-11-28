@@ -2,7 +2,9 @@
 
 using namespace sf;
 
-Apple::Apple(Texture* texture, const Vector2f& position, const sf::Vector2f& size) : Entity(texture, new Vertex[6], 6)
+Apple::Apple(Texture* texture, const Vector2f& position, const sf::Vector2f& size) :
+	Entity(texture, new Vertex[6], 6),
+	_eaten(false)
 {
 	const Vector2f actualPosition = position * 32.0F;
 	setPosition(actualPosition);
@@ -21,4 +23,14 @@ Apple::Apple(Texture* texture, const Vector2f& position, const sf::Vector2f& siz
 	_vertices[3] = Vertex(first, Color::White, Vector2f(0, 32));
 	_vertices[4] = Vertex(third, Color::White, Vector2f(32, 0));
 	_vertices[5] = Vertex(fourth, Color::White, Vector2f(0, 0));
+}
+
+bool Apple::eaten() const
+{
+	return _eaten;
+}
+
+void Apple::eat()
+{
+	_eaten = true;
 }
